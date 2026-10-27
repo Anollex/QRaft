@@ -13,3 +13,7 @@
 .externalNativeBuild
 .cxx
 local.properties
+
+# Google Services - FIREBASE
+# Ascunde credentialele si cheile Firebase de Git
+app/google-services.json

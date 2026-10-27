@@ -88,8 +88,8 @@ Proprietarul unui inventar poate adauga alti utilizatori dupa email, cu drept de
 
 ## Status
 
-- [ ] autentificare
-- [ ] CRUD locatii si itemi
+- [x] autentificare
+- [x] CRUD locatii si itemi (Offline-First cu Room)
 - [ ] generare coduri si QR
 - [ ] scanner + vibratie
 - [ ] sincronizare cloud
