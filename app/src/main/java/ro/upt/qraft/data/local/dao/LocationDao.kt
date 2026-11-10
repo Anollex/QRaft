@@ -6,6 +6,9 @@ import ro.upt.qraft.data.local.entity.LocationEntity
 
 @Dao
 interface LocationDao {
+    @Query("SELECT * FROM locations WHERE inventoryId = :inventoryId")
+    fun getLocationsForInventory(inventoryId: String): Flow<List<LocationEntity>>
+    
     @Query("SELECT * FROM locations WHERE inventoryId = :inventoryId AND parentId IS NULL")
     fun getRootLocationsForInventory(inventoryId: String): Flow<List<LocationEntity>>
 

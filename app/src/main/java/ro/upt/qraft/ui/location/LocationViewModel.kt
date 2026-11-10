@@ -41,13 +41,13 @@ class LocationViewModel @Inject constructor(
         }
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
-    fun createLocation(name: String, code: String, description: String) {
+    fun createLocation(name: String, description: String) {
         viewModelScope.launch {
             if (inventoryId != null) {
                 repository.createLocation(
                     inventoryId = inventoryId,
                     parentId = parentLocationId,
-                    code = code,
+                    code = "", // Va fi generat in repository
                     name = name,
                     description = description
                 )
@@ -55,13 +55,13 @@ class LocationViewModel @Inject constructor(
         }
     }
 
-    fun createItem(name: String, code: String, category: String, quantity: Int, notes: String) {
+    fun createItem(name: String, category: String, quantity: Int, notes: String) {
         viewModelScope.launch {
             if (inventoryId != null && parentLocationId != null) {
                 repository.createItem(
                     inventoryId = inventoryId,
                     locationId = parentLocationId,
-                    code = code,
+                    code = "", // Va fi generat in repository
                     name = name,
                     category = category,
                     quantity = quantity,

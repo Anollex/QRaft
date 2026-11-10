@@ -7,6 +7,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ExitToApp
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -19,7 +20,8 @@ import ro.upt.qraft.data.local.entity.InventoryEntity
 fun InventoryListScreen(
     viewModel: InventoryViewModel = hiltViewModel(),
     onInventoryClick: (String) -> Unit,
-    onLogoutClick: () -> Unit
+    onLogoutClick: () -> Unit,
+    onScanClick: () -> Unit
 ) {
     val inventories by viewModel.inventories.collectAsState()
     var showAddDialog by remember { mutableStateOf(false) }
@@ -29,11 +31,14 @@ fun InventoryListScreen(
             TopAppBar(
                 title = { Text("Inventarele mele") },
                 actions = {
+                    IconButton(onClick = onScanClick) {
+                        Icon(androidx.compose.material.icons.Icons.Default.Search, contentDescription = "Scan")
+                    }
                     IconButton(onClick = {
                         viewModel.logout()
                         onLogoutClick()
                     }) {
-                        Icon(Icons.Default.ExitToApp, contentDescription = "Logout")
+                        Icon(androidx.compose.material.icons.Icons.Default.ExitToApp, contentDescription = "Logout")
                     }
                 }
             )

@@ -47,6 +47,9 @@ fun NavGraph(
                     navController.navigate("auth") {
                         popUpTo(0) { inclusive = true }
                     }
+                },
+                onScanClick = {
+                    navController.navigate("scanner")
                 }
             )
         }
@@ -59,7 +62,33 @@ fun NavGraph(
                 onLocationClick = { clickedLocationId ->
                     navController.navigate("location_list/$inventoryId/$clickedLocationId")
                 },
-                onBackClick = { navController.popBackStack() }
+                onBackClick = { navController.popBackStack() },
+                onScanClick = { navController.navigate("scanner") }
+            )
+        }
+
+        composable("scanner") {
+            ro.upt.qraft.ui.scanner.ScannerScreen(
+                onClose = { navController.popBackStack() },
+                onCodeScanned = { rawValue ->
+                    // rawValue are forma "qraft://location/ID" sau "qraft://item/ID"
+                    val parts = rawValue.replace("qraft://", "").split("/")
+                    if (parts.size == 2) {
+                        val type = parts[0]
+                        val id = parts[1]
+                        
+                        // Oprim scanerul intorcandu-ne inapoi
+                        navController.popBackStack()
+
+                        // Aici va trebui o navigare dedicata cand avem ecrane de detalii complete,
+                        // dar momentan stim doar sa afisam continutul unei locatii
+                        if (type == "location") {
+                            // Cautam inventoryId al acelei locatii - un mic hack pana avem ViewModel global 
+                            // momentan afisam pe UI de eroare sau deschidem un placeholder.
+                            // Cel mai simplu pt a respecta cerinta curenta: trimitem in route
+                        }
+                    }
+                }
             )
         }
     }

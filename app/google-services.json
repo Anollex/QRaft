@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "195235053965",
+    "project_id": "qraft-anollex",
+    "storage_bucket": "qraft-anollex.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:195235053965:android:810d7fb57082cd1b0dfdc4",
+        "android_client_info": {
+          "package_name": "ro.upt.qraft"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCINqpQhO2pKqCws_yh5Vzi21nVtijYijE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

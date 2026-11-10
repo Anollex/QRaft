@@ -90,8 +90,8 @@ Proprietarul unui inventar poate adauga alti utilizatori dupa email, cu drept de
 
 - [x] autentificare
 - [x] CRUD locatii si itemi (Offline-First cu Room)
-- [ ] generare coduri si QR
-- [ ] scanner + vibratie
+- [x] generare coduri si QR
+- [x] scanner + vibratie
 - [ ] sincronizare cloud
 - [ ] partajare
 - [ ] export

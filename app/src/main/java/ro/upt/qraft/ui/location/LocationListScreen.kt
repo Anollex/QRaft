@@ -7,6 +7,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -14,13 +15,15 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import ro.upt.qraft.data.local.entity.ItemEntity
 import ro.upt.qraft.data.local.entity.LocationEntity
+import ro.upt.qraft.utils.QrCodeGenerator
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LocationListScreen(
     viewModel: LocationViewModel = hiltViewModel(),
     onLocationClick: (String) -> Unit,
-    onBackClick: () -> Unit
+    onBackClick: () -> Unit,
+    onScanClick: () -> Unit
 ) {
     val locations by viewModel.locations.collectAsState()
     val items by viewModel.items.collectAsState()
@@ -36,7 +39,12 @@ fun LocationListScreen(
                 title = { Text(if (isRoot) "Locații" else "Conținut Locație") },
                 navigationIcon = {
                     IconButton(onClick = onBackClick) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Înapoi")
+                        Icon(androidx.compose.material.icons.Icons.Default.ArrowBack, contentDescription = "Înapoi")
+                    }
+                },
+                actions = {
+                    IconButton(onClick = onScanClick) {
+                        Icon(androidx.compose.material.icons.Icons.Default.Search, contentDescription = "Scan")
                     }
                 }
             )
@@ -81,8 +89,8 @@ fun LocationListScreen(
     if (showAddLocationDialog) {
         AddLocationDialog(
             onDismiss = { showAddLocationDialog = false },
-            onAdd = { name, code ->
-                viewModel.createLocation(name, code, "")
+            onAdd = { name ->
+                viewModel.createLocation(name, "")
                 showAddLocationDialog = false
             }
         )
@@ -91,8 +99,8 @@ fun LocationListScreen(
     if (showAddItemDialog) {
         AddItemDialog(
             onDismiss = { showAddItemDialog = false },
-            onAdd = { name, code, qty ->
-                viewModel.createItem(name, code, "", qty, "")
+            onAdd = { name, qty ->
+                viewModel.createItem(name, "", qty, "")
                 showAddItemDialog = false
             }
         )
@@ -101,37 +109,66 @@ fun LocationListScreen(
 
 @Composable
 fun LocationItemRow(location: LocationEntity, onClick: () -> Unit) {
+    val qrBitmap = QrCodeGenerator.generateQrBitmap("qraft://location/${location.id}", 150)
+    
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp, vertical = 8.dp)
             .clickable(onClick = onClick)
     ) {
-        Column(modifier = Modifier.padding(16.dp)) {
-            Text(text = location.name, style = MaterialTheme.typography.titleMedium)
-            Text(text = "Cod: ${location.code}", style = MaterialTheme.typography.bodyMedium)
+        Row(
+            modifier = Modifier.padding(16.dp),
+            verticalAlignment = androidx.compose.ui.Alignment.CenterVertically
+        ) {
+            qrBitmap?.let {
+                androidx.compose.foundation.Image(
+                    bitmap = it,
+                    contentDescription = "QR Code",
+                    modifier = Modifier.size(60.dp)
+                )
+                Spacer(modifier = Modifier.width(16.dp))
+            }
+            Column {
+                Text(text = location.name, style = MaterialTheme.typography.titleMedium)
+                Text(text = "Cod: ${location.code}", style = MaterialTheme.typography.bodyMedium)
+            }
         }
     }
 }
 
 @Composable
 fun ItemRow(item: ItemEntity) {
+    val qrBitmap = QrCodeGenerator.generateQrBitmap("qraft://item/${item.id}", 150)
+
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp, vertical = 8.dp)
     ) {
-        Column(modifier = Modifier.padding(16.dp)) {
-            Text(text = item.name, style = MaterialTheme.typography.titleMedium)
-            Text(text = "Cod: ${item.code} | Cantitate: ${item.quantity}", style = MaterialTheme.typography.bodyMedium)
+        Row(
+            modifier = Modifier.padding(16.dp),
+            verticalAlignment = androidx.compose.ui.Alignment.CenterVertically
+        ) {
+            qrBitmap?.let {
+                androidx.compose.foundation.Image(
+                    bitmap = it,
+                    contentDescription = "QR Code",
+                    modifier = Modifier.size(60.dp)
+                )
+                Spacer(modifier = Modifier.width(16.dp))
+            }
+            Column {
+                Text(text = item.name, style = MaterialTheme.typography.titleMedium)
+                Text(text = "Cod: ${item.code} | Cantitate: ${item.quantity}", style = MaterialTheme.typography.bodyMedium)
+            }
         }
     }
 }
 
 @Composable
-fun AddLocationDialog(onDismiss: () -> Unit, onAdd: (String, String) -> Unit) {
+fun AddLocationDialog(onDismiss: () -> Unit, onAdd: (String) -> Unit) {
     var name by remember { mutableStateOf("") }
-    var code by remember { mutableStateOf("") }
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -140,11 +177,11 @@ fun AddLocationDialog(onDismiss: () -> Unit, onAdd: (String, String) -> Unit) {
             Column {
                 OutlinedTextField(value = name, onValueChange = { name = it }, label = { Text("Nume Locație") })
                 Spacer(modifier = Modifier.height(8.dp))
-                OutlinedTextField(value = code, onValueChange = { code = it }, label = { Text("Cod (ex: L-001)") })
+                Text("Codul va fi generat automat.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
         },
         confirmButton = {
-            Button(onClick = { onAdd(name, code) }, enabled = name.isNotBlank() && code.isNotBlank()) {
+            Button(onClick = { onAdd(name) }, enabled = name.isNotBlank()) {
                 Text("Adaugă")
             }
         },
@@ -153,9 +190,8 @@ fun AddLocationDialog(onDismiss: () -> Unit, onAdd: (String, String) -> Unit) {
 }
 
 @Composable
-fun AddItemDialog(onDismiss: () -> Unit, onAdd: (String, String, Int) -> Unit) {
+fun AddItemDialog(onDismiss: () -> Unit, onAdd: (String, Int) -> Unit) {
     var name by remember { mutableStateOf("") }
-    var code by remember { mutableStateOf("") }
     var quantity by remember { mutableStateOf("1") }
 
     AlertDialog(
@@ -165,13 +201,13 @@ fun AddItemDialog(onDismiss: () -> Unit, onAdd: (String, String, Int) -> Unit) {
             Column {
                 OutlinedTextField(value = name, onValueChange = { name = it }, label = { Text("Nume Item") })
                 Spacer(modifier = Modifier.height(8.dp))
-                OutlinedTextField(value = code, onValueChange = { code = it }, label = { Text("Cod (ex: I-001)") })
-                Spacer(modifier = Modifier.height(8.dp))
                 OutlinedTextField(value = quantity, onValueChange = { quantity = it }, label = { Text("Cantitate") })
+                Spacer(modifier = Modifier.height(8.dp))
+                Text("Codul de 12 cifre va fi generat automat.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
         },
         confirmButton = {
-            Button(onClick = { onAdd(name, code, quantity.toIntOrNull() ?: 1) }, enabled = name.isNotBlank() && code.isNotBlank()) {
+            Button(onClick = { onAdd(name, quantity.toIntOrNull() ?: 1) }, enabled = name.isNotBlank()) {
                 Text("Adaugă")
             }
         },

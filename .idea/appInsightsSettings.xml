@@ -9,9 +9,9 @@
               <option name="connection">
                 <ConnectionSetting>
                   <option name="appId" value="ro.upt.qraft" />
-                  <option name="mobileSdkAppId" value="1:1234567890:android:abcdef123456" />
-                  <option name="projectId" value="qraft-dummy" />
-                  <option name="projectNumber" value="1234567890" />
+                  <option name="mobileSdkAppId" value="1:195235053965:android:810d7fb57082cd1b0dfdc4" />
+                  <option name="projectId" value="qraft-anollex" />
+                  <option name="projectNumber" value="195235053965" />
                 </ConnectionSetting>
               </option>
               <option name="signal" value="SIGNAL_UNSPECIFIED" />
