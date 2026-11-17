@@ -24,7 +24,9 @@ object DatabaseModule {
             context,
             QRaftDatabase::class.java,
             "qraft_database"
-        ).build()
+        )
+            .addMigrations(QRaftDatabase.MIGRATION_1_2, QRaftDatabase.MIGRATION_2_3)
+            .build()
     }
 
     @Provides

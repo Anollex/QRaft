@@ -19,6 +19,10 @@ class AuthRepositoryImpl @Inject constructor(
         awaitClose { auth.removeAuthStateListener(listener) }
     }
 
+    override val currentUserId: String? get() = auth.currentUser?.uid
+
+    override val currentUserEmail: String? get() = auth.currentUser?.email
+
     override suspend fun login(email: String, password: String): Result<Unit> {
         return try {
             auth.signInWithEmailAndPassword(email, password).await()

@@ -4,6 +4,9 @@ import kotlinx.coroutines.flow.Flow
 
 interface AuthRepository {
     val currentUser: Flow<String?>
+    /** Valoarea curenta, sincron (util la pornire, inainte ca Flow-ul sa emita). */
+    val currentUserId: String?
+    val currentUserEmail: String?
     suspend fun login(email: String, password: String): Result<Unit>
     suspend fun register(email: String, password: String): Result<Unit>
     suspend fun logout()

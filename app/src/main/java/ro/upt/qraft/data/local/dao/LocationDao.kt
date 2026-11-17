@@ -26,4 +26,24 @@ interface LocationDao {
 
     @Delete
     suspend fun deleteLocation(location: LocationEntity)
+
+    // --- Sincronizare ---
+
+    @Query("SELECT * FROM locations WHERE inventoryId = :inventoryId")
+    suspend fun getLocationsForInventoryOnce(inventoryId: String): List<LocationEntity>
+
+    @Query("SELECT id FROM locations WHERE inventoryId = :inventoryId")
+    suspend fun getLocationIdsForInventory(inventoryId: String): List<String>
+
+    @Query("SELECT * FROM locations WHERE pendingSync = 1")
+    suspend fun getPendingLocations(): List<LocationEntity>
+
+    @Query("UPDATE locations SET pendingSync = 0 WHERE id = :id AND updatedAt = :updatedAt")
+    suspend fun markSynced(id: String, updatedAt: Long)
+
+    @Upsert
+    suspend fun upsertLocations(locations: List<LocationEntity>)
+
+    @Query("DELETE FROM locations WHERE id IN (:ids)")
+    suspend fun deleteLocationsByIds(ids: List<String>)
 }

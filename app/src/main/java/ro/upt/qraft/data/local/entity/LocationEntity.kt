@@ -1,5 +1,6 @@
 package ro.upt.qraft.data.local.entity
 
+import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
@@ -25,5 +26,6 @@ data class LocationEntity(
     val code: String,
     val name: String,
     val description: String = "",
-    val updatedAt: Long = System.currentTimeMillis()
+    val updatedAt: Long = System.currentTimeMillis(),
+    @ColumnInfo(defaultValue = "1") val pendingSync: Boolean = true
 )

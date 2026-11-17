@@ -30,6 +30,7 @@ fun AuthScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .imePadding() // continutul centrat urca deasupra tastaturii
             .padding(24.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
@@ -84,7 +85,7 @@ fun AuthScreen(
                     color = MaterialTheme.colorScheme.onPrimary
                 )
             } else {
-                Text(if (isLoginMode) "Log In" else "Register")
+                Text(if (isLoginMode) "Autentificare" else "Creează cont")
             }
         }
 

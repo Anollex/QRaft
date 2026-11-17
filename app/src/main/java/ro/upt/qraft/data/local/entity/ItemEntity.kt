@@ -1,5 +1,6 @@
 package ro.upt.qraft.data.local.entity
 
+import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
@@ -33,5 +34,6 @@ data class ItemEntity(
     val category: String = "",
     val quantity: Int = 1,
     val notes: String = "",
-    val updatedAt: Long = System.currentTimeMillis()
+    val updatedAt: Long = System.currentTimeMillis(),
+    @ColumnInfo(defaultValue = "1") val pendingSync: Boolean = true
 )

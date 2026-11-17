@@ -8,19 +8,29 @@ import ro.upt.qraft.data.local.entity.LocationEntity
 interface InventoryRepository {
     fun getAllInventories(): Flow<List<InventoryEntity>>
     fun getInventoryById(id: String): Flow<InventoryEntity?>
-    suspend fun createInventory(name: String, ownerId: String, prefix: String)
+    suspend fun createInventory(name: String, ownerId: String, ownerEmail: String)
+    suspend fun renameInventory(inventory: InventoryEntity, newName: String)
     suspend fun deleteInventory(inventory: InventoryEntity)
 
+    /** Numarul de randuri modificate local care nu au fost confirmate inca de server. */
+    suspend fun countPendingChanges(): Int
+
+    /** Adauga sau actualizeaza un membru dupa email. Necesita internet (cautarea emailului). */
+    suspend fun shareInventory(inventory: InventoryEntity, email: String, role: String): Result<Unit>
+    suspend fun changeMemberRole(inventory: InventoryEntity, uid: String, role: String)
+    suspend fun removeMember(inventory: InventoryEntity, uid: String)
+
     fun getRootLocations(inventoryId: String): Flow<List<LocationEntity>>
+    fun getAllLocations(inventoryId: String): Flow<List<LocationEntity>>
     fun getChildLocations(parentId: String): Flow<List<LocationEntity>>
     fun getLocationById(id: String): Flow<LocationEntity?>
-    suspend fun createLocation(inventoryId: String, parentId: String?, code: String, name: String, description: String)
+    suspend fun createLocation(inventoryId: String, parentId: String?, name: String, description: String)
     suspend fun updateLocation(location: LocationEntity)
     suspend fun deleteLocation(location: LocationEntity)
 
     fun getItems(locationId: String): Flow<List<ItemEntity>>
     fun getItemById(id: String): Flow<ItemEntity?>
-    suspend fun createItem(inventoryId: String, locationId: String, code: String, name: String, category: String, quantity: Int, notes: String)
+    suspend fun createItem(inventoryId: String, locationId: String, name: String, category: String, quantity: Int, notes: String)
     suspend fun updateItem(item: ItemEntity)
     suspend fun deleteItem(item: ItemEntity)
 }

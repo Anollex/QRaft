@@ -1,0 +1,70 @@
+rules_version = '2';
+
+// Reguli Cloud Firestore pentru QRaft.
+// Publicare: npx -y firebase-tools@latest deploy --only firestore:rules
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    // userEmails/{email} -> { uid }: folosit la partajare pentru a gasi un cont dupa email.
+    // Se poate citi doar un email cunoscut (get); listarea tuturor utilizatorilor nu e permisa.
+    match /userEmails/{email} {
+      allow get: if signedIn();
+      allow list: if false;
+      allow create, update: if signedIn()
+        && request.auth.token.email != null
+        && request.auth.token.email.lower() == email
+        && request.resource.data.uid == request.auth.uid;
+      allow delete: if false;
+    }
+
+    match /inventories/{inventoryId} {
+
+      // Starea inventarului parinte (inainte de scrierea curenta).
+      function inventory() {
+        return get(/databases/$(database)/documents/inventories/$(inventoryId)).data;
+      }
+
+      function isMember() {
+        return signedIn() && request.auth.uid in inventory().members;
+      }
+
+      // Proprietarul sau un membru cu rol "editor".
+      function canEdit() {
+        let inv = inventory();
+        return signedIn() && (
+          inv.ownerId == request.auth.uid ||
+          (request.auth.uid in inv.roles && inv.roles[request.auth.uid] == 'editor')
+        );
+      }
+
+      // Query-ul din aplicatie: whereArrayContains("members", uid)
+      allow read: if signedIn() && request.auth.uid in resource.data.members;
+
+      allow create: if signedIn()
+        && request.resource.data.ownerId == request.auth.uid
+        && request.auth.uid in request.resource.data.members;
+
+      // Doar proprietarul redenumeste / partajeaza; proprietarul nu poate fi schimbat.
+      allow update: if signedIn()
+        && resource.data.ownerId == request.auth.uid
+        && request.resource.data.ownerId == resource.data.ownerId
+        && request.auth.uid in request.resource.data.members;
+
+      allow delete: if signedIn() && resource.data.ownerId == request.auth.uid;
+
+      match /locations/{locationId} {
+        allow read: if isMember();
+        allow write: if canEdit();
+      }
+
+      match /items/{itemId} {
+        allow read: if isMember();
+        allow write: if canEdit();
+      }
+    }
+  }
+}

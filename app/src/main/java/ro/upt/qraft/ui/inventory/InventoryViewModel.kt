@@ -5,12 +5,12 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import ro.upt.qraft.data.local.entity.InventoryEntity
 import ro.upt.qraft.data.repository.AuthRepository
 import ro.upt.qraft.data.repository.InventoryRepository
+import ro.upt.qraft.utils.InventoryCodes
 import javax.inject.Inject
 
 @HiltViewModel
@@ -19,6 +19,8 @@ class InventoryViewModel @Inject constructor(
     private val authRepository: AuthRepository
 ) : ViewModel() {
 
+    val currentUserId: String? get() = authRepository.currentUserId
+
     val inventories: StateFlow<List<InventoryEntity>> = inventoryRepository.getAllInventories()
         .stateIn(
             scope = viewModelScope,
@@ -26,21 +28,19 @@ class InventoryViewModel @Inject constructor(
             initialValue = emptyList()
         )
 
-    fun createInventory(name: String, prefix: String) {
+    fun previewPrefix(name: String): String = InventoryCodes.locationPrefix(name)
+
+    fun createInventory(name: String) {
+        // Citim utilizatorul o singura data (nu collect: altfel fiecare schimbare de auth ar crea alt inventar)
+        val userId = authRepository.currentUserId ?: return
+        val email = authRepository.currentUserEmail.orEmpty()
         viewModelScope.launch {
-            authRepository.currentUser.collect { userId ->
-                if (userId != null) {
-                    inventoryRepository.createInventory(name, userId, prefix)
-                }
-            }
+            inventoryRepository.createInventory(name, userId, email)
         }
     }
 
-    fun deleteInventory(inventory: InventoryEntity) {
-        viewModelScope.launch {
-            inventoryRepository.deleteInventory(inventory)
-        }
-    }
+    /** Folosit in dialogul de deconectare: la logout baza locala este golita. */
+    suspend fun countPendingChanges(): Int = inventoryRepository.countPendingChanges()
 
     fun logout() {
         viewModelScope.launch {
